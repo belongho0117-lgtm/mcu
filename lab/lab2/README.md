@@ -10,7 +10,7 @@ lab2/
 │   │   ├── stm32g4xx_hal_conf.h       # STM32 HAL 庫功能模組開啟／關閉配置
 │   │   └── stm32g4xx_it.h             # 中斷服務函式標頭檔
 │   ├── Src/                           # C 語言原始碼目錄
-│   │   ├── main.c                     # 主程式：LED 閃爍、GPIO／NVIC 設定、EXTI Callback
+│   │   ├── main.c                     # 主程式：LED 閃爍（HAL_GetTick）、按鈕輪詢與去彈跳
 │   │   ├── stm32g4xx_hal_msp.c        # MCU 底層硬體初始化
 │   │   ├── stm32g4xx_it.c             # 中斷向量處理（包含 EXTI9_5 中斷入口）
 │   │   ├── syscalls.c                 # 系統呼叫（CubeIDE 自動產生）
