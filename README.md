@@ -23,7 +23,7 @@
 | Lab2 | EXTI 中斷：PC9 按鈕切換 LED 顏色 | 完成 | [lab/lab2](lab/lab2) |
 | Lab3 | FSM 狀態機＋PC13 STOP 急停中斷 | 完成 | [lab/lab3](lab/lab3) |
 | Lab4 | UART 指令控制 LED＋Ring Buffer | 完成 | [lab/lab4](lab/lab4) |
-| Lab5 | TIM3 硬體 PWM：LED 亮度控制與呼吸燈 | 進行中（Challenge 完成） | [lab/lab5](lab/lab5) |
+| Lab5 | TIM3 硬體 PWM：LED 亮度控制與呼吸燈 | 完成 | [lab/lab5](lab/lab5) |
 
 ## 資料夾說明
 
