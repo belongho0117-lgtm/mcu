@@ -105,7 +105,6 @@ int main(void)
   /* USER CODE END 3 */
 }
 
-
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -172,7 +171,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 1699;
+  htim3.Init.Prescaler = 84;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 19999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
