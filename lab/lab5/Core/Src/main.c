@@ -43,7 +43,11 @@
 TIM_HandleTypeDef htim3;
 
 /* USER CODE BEGIN PV */
-
+/* USER CODE BEGIN PV */
+uint32_t lastTick = 0;   // 上次更新亮度的時間（ms）
+int32_t  level = 0;      // 亮度等級 0（最暗）～100（最亮）
+int32_t  dir = 1;        // +1 變亮，-1 變暗
+/* USER CODE END PV */
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,10 +93,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM3_Init();
+
   /* USER CODE BEGIN 2 */
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);  // 啟動 PC8 的 PWM
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);  // 啟動 PC9 的 PWM
+  lastTick = HAL_GetTick();                   // 記下起始時間
   /* USER CODE END 2 */
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -101,6 +107,19 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    if (HAL_GetTick() - lastTick >= 10)          // 滿 10 ms 才更新一次
+    {
+      lastTick += 10;
+
+      level += dir;                               // 亮度走一步
+      if (level >= 100) { level = 100; dir = -1; }  // 最亮 → 轉暗
+      else if (level <= 0) { level = 0; dir = 1; }  // 最暗 → 轉亮
+
+      // 平方曲線：0~100 對應 CCR 0~19999，暗的區段變化較慢，看起來更順
+      uint32_t ccr = (uint32_t)(level * level) * 19999U / 10000U;
+
+      __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, ccr);  // 改亮度
+    }
   }
   /* USER CODE END 3 */
 }
