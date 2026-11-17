@@ -5,6 +5,7 @@
   * @brief   Lab 7 DAC signal generator (NUCLEO-G474RE)
   *          TIM6 interrupt every 0.2 ms -> DAC1 (PA4) outputs one point
   *          100 points per period -> 5 kHz / 100 = 50 Hz
+  *          USER button (B1 / PC13): sine -> triangle -> square -> sine
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -22,7 +23,13 @@ TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
 uint16_t sine_table[100];               // sine wave table
+uint16_t tri_table[100];                // triangle wave table
+uint16_t sq_table[100];                 // square wave table
+
+volatile uint16_t *wave = sine_table;   // table being output now (sine at start)
 volatile uint8_t  idx  = 0;             // index of the next point
+volatile uint8_t  mode = 0;             // 0=sine 1=triangle 2=square
+volatile uint32_t last_press = 0;       // for button debounce
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -44,10 +51,17 @@ int main(void)
   MX_TIM6_Init();
 
   /* USER CODE BEGIN 2 */
-  /* Build sine table, range 248 ~ 3848 (center 2048 = about 1.65 V) */
+  /* Build 3 tables, range 248 ~ 3848 (center 2048 = about 1.65 V) */
   for (int i = 0; i < 100; i++) {
     /* Sine: angle of point i = 2*pi*i/100 */
     sine_table[i] = (uint16_t)(2048 + 1800 * sinf(2 * 3.14159f * i / 100));
+
+    /* Triangle: first 50 points go up, last 50 go down */
+    if (i < 50) tri_table[i] = (uint16_t)(248 + 3600 * i / 50);
+    else        tri_table[i] = (uint16_t)(3848 - 3600 * (i - 50) / 50);
+
+    /* Square: first half high, second half low */
+    sq_table[i] = (i < 50) ? 3848 : 248;
   }
 
   HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);   // start DAC1 channel 1 (PA4)
@@ -177,9 +191,24 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   if (htim->Instance == TIM6) {
-    HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, sine_table[idx]);
+    HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, wave[idx]);
     idx++;
     if (idx >= 100) idx = 0;
+  }
+}
+
+/* USER button pressed: switch to the next waveform */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == GPIO_PIN_13) {
+    uint32_t now = HAL_GetTick();
+    if (now - last_press < 200) return;   // ignore bounces within 200 ms
+    last_press = now;
+
+    mode = (mode + 1) % 3;
+    if (mode == 0)      wave = sine_table;
+    else if (mode == 1) wave = tri_table;
+    else                wave = sq_table;
   }
 }
 /* USER CODE END 4 */
