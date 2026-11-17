@@ -3,7 +3,8 @@
   ******************************************************************************
   * @file    main.c
   * @brief   Lab 7 DAC signal generator (NUCLEO-G474RE)
-  *          CubeMX setup: DAC1 OUT1 (PA4), TIM6 PSC=169 ARR=199, PC13 EXTI
+  *          TIM6 interrupt every 0.2 ms -> DAC1 (PA4) outputs one point
+  *          100 points per period -> 5 kHz / 100 = 50 Hz
   ******************************************************************************
   */
 /* USER CODE END Header */
@@ -12,7 +13,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -20,7 +21,8 @@ DAC_HandleTypeDef hdac1;
 TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
-
+uint16_t sine_table[100];               // sine wave table
+volatile uint8_t  idx  = 0;             // index of the next point
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -42,13 +44,20 @@ int main(void)
   MX_TIM6_Init();
 
   /* USER CODE BEGIN 2 */
+  /* Build sine table, range 248 ~ 3848 (center 2048 = about 1.65 V) */
+  for (int i = 0; i < 100; i++) {
+    /* Sine: angle of point i = 2*pi*i/100 */
+    sine_table[i] = (uint16_t)(2048 + 1800 * sinf(2 * 3.14159f * i / 100));
+  }
 
+  HAL_DAC_Start(&hdac1, DAC_CHANNEL_1);   // start DAC1 channel 1 (PA4)
+  HAL_TIM_Base_Start_IT(&htim6);          // start TIM6 with interrupt
   /* USER CODE END 2 */
 
   while (1)
   {
     /* USER CODE BEGIN 3 */
-
+    /* Nothing here: the waveform is made by the TIM6 interrupt */
     /* USER CODE END 3 */
   }
 }
@@ -164,7 +173,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+/* Called by TIM6 every 0.2 ms: send the next point to the DAC */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  if (htim->Instance == TIM6) {
+    HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, sine_table[idx]);
+    idx++;
+    if (idx >= 100) idx = 0;
+  }
+}
 /* USER CODE END 4 */
 
 /**
