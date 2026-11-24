@@ -12,7 +12,7 @@
 
 | 成員 | GitHub | 負責 |
 |---|---|---|
-| 王毓淂 | wilson-wa | .gitignore、README、Lab1（LED_hw）、Lab2、Lab4、Lab5、Lab7 |
+| 王毓淂 | wilson-wa | .gitignore、README、Lab1（LED_hw）、Lab2、Lab4、Lab5、Lab7、Lab8 |
 | 何秉融 | belongho0117-lgtm | 建立 repo、Lab3 |
 
 ## Lab 列表
@@ -25,6 +25,7 @@
 | Lab4 | UART 指令控制 LED＋Ring Buffer | 完成 | [lab/lab4](lab/lab4) |
 | Lab5 | TIM3 硬體 PWM：LED 亮度控制與呼吸燈 | 完成 | [lab/lab5](lab/lab5) |
 | Lab7 | DAC 訊號產生器：TIM6 查表輸出 50Hz 正弦／三角／方波 | 完成 | [lab/lab7](lab/lab7) |
+| Lab8 | I2C 讀取 MPU6050：左右傾斜控制三顆 LED | 完成 | [lab/lab8](lab/lab8) |
 
 ## 資料夾說明
 
